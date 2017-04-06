@@ -55,6 +55,16 @@ public final class FaceUtil {
      * @return 保存是否成功
      */
     public static boolean saveImage(Context context, Mat image, Rect rect, String fileName) {
+        Mat mat = grayChange(image,rect);
+        return Highgui.imwrite(getFilePath(context, fileName), mat);
+    }
+
+    /**
+     * 将检测的人脸置灰且变成固定大小
+     * @param image
+     * @param rect
+     */
+    public static Mat grayChange(Mat image,Rect rect){
         // 原图置灰
         Mat grayMat = new Mat();
         Imgproc.cvtColor(image, grayMat, Imgproc.COLOR_BGR2GRAY);
@@ -63,7 +73,7 @@ public final class FaceUtil {
         Mat mat = new Mat();
         Size size = new Size(100, 100);
         Imgproc.resize(sub, mat, size);
-        return Highgui.imwrite(getFilePath(context, fileName), mat);
+        return mat;
     }
 
     /**

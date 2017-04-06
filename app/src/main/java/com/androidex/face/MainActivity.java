@@ -14,21 +14,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidex.face.idcard.util.IdCardUtil;
 import com.kongqw.interfaces.OnFaceDetectorListener;
 import com.kongqw.interfaces.OnOpenCVInitListener;
 import com.kongqw.util.FaceUtil;
 import com.kongqw.view.CameraFaceDetectionView;
-import com.androidex.face.idcard.util.IdCardUtil;
 import com.synjones.idcard.IDCard;
 
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
 
 public class MainActivity extends AppCompatActivity implements OnFaceDetectorListener ,IdCardUtil.BitmapCallBack{
 
     private static final String TAG = "MainActivity";
     private static final String FACE1 = "face1";
     private static final String FACE2 = "face2";
+    private static final int MINCMP = 10;
     private static boolean isGettingFace = true;
     private Bitmap mBitmapFace1;
     private Bitmap mBitmapFace2;
@@ -36,11 +39,16 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     private ImageView mImageViewFace1;
     private ImageView mImageViewFace2;
     private TextView mCmpPic;
-    private double cmp;
+    private double cmp ;
+    private double cmpTemp;
     private CameraFaceDetectionView mCameraFaceDetectionView;
     private PermissionsManager mPermissionsManager;
 
     private IdCardUtil mIdCardUtil;
+
+    public  Mat matFace ;
+    public Mat matFace1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,25 +185,54 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
      * @param rect Rect
      */
     @Override
-    public void onFace(Mat mat, Rect rect) {
-        if (isGettingFace) {
+    public void onFace(final Mat mat, final Rect rect) {
+        if (isGettingFace){
             mBitmapFace1 = null;
+            cmp = 0.0;
+            cmpTemp = 0.0;
+            Mat m = FaceUtil.grayChange(mat,rect);
             // 保存人脸信息并显示
-            FaceUtil.saveImage(this, mat, rect, FACE1);
-            mBitmapFace1 = FaceUtil.getImage(this, FACE1);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (null == mBitmapFace1) {
-                        mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
-                    } else {
+           // FaceUtil.saveImage(this, mat, rect, FACE1);
+           // mBitmapFace1 = FaceUtil.getImage(this, FACE1);
+            //Utils.matToBitmap(mat,mBitmapFace1);
+            //计算相似度
+            if (idCard!=null){//读取到身份证照片才做对比
+                //Mat mat11 = new Mat();
+                Mat mat2 = new Mat();
+                Mat mat22 = new Mat();
+                Utils.bitmapToMat(mBitmapFace3,mat2);
+                //Imgproc.cvtColor(mat,mat11,Imgproc.COLOR_BGR2GRAY);
+                Imgproc.cvtColor(mat2,mat22, Imgproc.COLOR_BGR2GRAY);
+                cmp = FaceUtil.comPareHist(m,mat22);
+                Log.d(TAG, "onFace: cmp="+cmp);
+            }
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (null == mat) {
+                    mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
+                } else {
+                   //当cmp相似度大于数值时，设置图片
+                    if (cmp>MINCMP){
+                        cmpTemp = cmp;
+                        FaceUtil.saveImage(MainActivity.this, mat, rect, FACE1);
+                        mBitmapFace1 = FaceUtil.getImage(MainActivity.this, FACE1);
                         mImageViewFace1.setImageBitmap(mBitmapFace1);
+                        isGettingFace = false;
+                        cmp =0.0;
+                    }else{
+                        if (mBitmapFace1!=null){
+                            mImageViewFace1.setImageBitmap(mBitmapFace1);
+                        }else {
+                            mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
+                        }
                     }
                 }
-            });
+                mCmpPic.setText(String.format("相似度 :  %.2f", cmpTemp) + "%");
+            }
+        });
 
-            isGettingFace = false;
-        }
     }
 
     @Override
@@ -217,41 +254,26 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         if (a ==IdCardUtil.READ){
             idCard = mIdCardUtil.getIdCard();
             if (idCard!=null){
+                if(matFace == null)matFace = new Mat();
                 mBitmapFace2 = idCard.getPhoto();
+                mBitmapFace3 = FaceUtil.getSizeBmp(FaceUtil.grey(mBitmapFace2));
                 //保存bitmap位图，用于比较
-                mBitmapFace3 = FaceUtil.getSizeBmp(mBitmapFace2);
-                FaceUtil.saveImage(MainActivity.this,FaceUtil.grey(FaceUtil.getSizeBmp(mBitmapFace2)),FACE2);
-                //将检测到的人脸和身份证照片作对比
-                Log.d(TAG, "callBack: "+cmp);
-              //     // 计算相似度
-                if(mBitmapFace1!=null){
-                    cmp = FaceUtil.compare(this,FACE1,FACE2);//报错
-                    /*Mat mat1 = new Mat();
-                    Mat mat11 = new Mat();
-                    Mat mat2 = new Mat();
-                    Mat mat22 = new Mat();
-                    Utils.bitmapToMat(mBitmapFace1,mat1);
-                    Utils.bitmapToMat(mBitmapFace3,mat2);
-                    Imgproc.cvtColor(mat1,mat11,Imgproc.COLOR_BGR2GRAY);
-                    Imgproc.cvtColor(mat2,mat22,Imgproc.COLOR_BGR2GRAY);
-                    cmp = FaceUtil.comPareHist(mat11,mat22);*/
-                    isGettingFace = true;
-                }
-                Log.d(TAG, "callBack: "+cmp);
+                //FaceUtil.saveImage(MainActivity.this,FaceUtil.grey(FaceUtil.getSizeBmp(mBitmapFace2)),FACE2);
+            }else{
+                isGettingFace = true;
             }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (null == mBitmapFace2) {
+                    if (null == mBitmapFace2||idCard==null) {
 
                         mImageViewFace2.setImageResource(R.mipmap.ic_contact_picture);
                     } else {
                         mImageViewFace2.setImageBitmap(mBitmapFace3);
                     }
-                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%");
+
                 }
             });
-
         }
     }
 }

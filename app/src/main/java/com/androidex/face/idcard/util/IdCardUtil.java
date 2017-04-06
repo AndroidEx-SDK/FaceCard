@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import android.os.Looper;
 import android.util.Log;
 
+import com.androidex.face.idcard.Application;
+import com.androidex.face.idcard.ReaderSerialPort;
 import com.synjones.idcard.IDCard;
 import com.synjones.idcard.IDcardReader;
 import com.synjones.multireaderlib.MultiReader;
@@ -18,8 +20,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android_serialport_api.SerialPort;
-import com.androidex.face.idcard.Application;
-import com.androidex.face.idcard.ReaderSerialPort;
 
 /**
  * Created by cts on 17/3/24.
@@ -127,6 +127,8 @@ public class IdCardUtil {
             super.run();
             Looper.prepare();
             while (reading){
+                //发送消息出去
+                bitmapCallBack.callBack(READ);
                 idCard = idreader.getIDCardFp();
                 if (idCard!=null){
                     com.synjones.bluetooth.DecodeWlt mydw = new com.synjones.bluetooth.DecodeWlt();
@@ -152,12 +154,9 @@ public class IdCardUtil {
                     //取出bitmap文件
                     bmp = BitmapFactory.decodeFile(bmpPath);
                     idCard.setPhoto(bmp);
-                    //获取到信息，发送消息出去
-                    bitmapCallBack.callBack(READ);
                 }else{
-                   continue;
+                    continue;
                 }
-
 
             }
         }
