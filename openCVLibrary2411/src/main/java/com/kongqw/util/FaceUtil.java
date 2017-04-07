@@ -119,6 +119,30 @@ public final class FaceUtil {
         return mbitmap;
     }
 
+   /* *//**
+     *  提取图片sift特征
+     * @return
+     *//*
+    public static Mat extractSIFT(Mat test_mat){
+       // System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
+        Mat desc = new Mat();
+        FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIFT);
+        MatOfKeyPoint mkp =new MatOfKeyPoint();
+        Log.d(TAG, "extractSIFT: +++++++++----------");
+        *//**
+         * SURF,SIFT等各种有专利的算法在OpenCV里面是属于Non-free（非自由的），
+         * 在C++代码调用时需要调用nonfree模块才可以使用，
+         * 即可得知在官方移植的Android包里面也是没有移植这两种算法的。。。
+         *//*
+        fd.detect(test_mat, mkp);//报错
+        Log.d(TAG, "extractSIFT: +++++++++");
+        DescriptorExtractor de = DescriptorExtractor.create(DescriptorExtractor.SIFT);
+        de.compute(test_mat,mkp,desc );//提取sift特征
+        Log.d(TAG, "extractSIFT: "+desc.cols());
+        Log.d(TAG, "extractSIFT: "+desc.rows());
+        return desc;
+    }
+*/
     /**
      * 将bitmap保存至固定路径下
      * @param bitmap
@@ -195,15 +219,11 @@ public final class FaceUtil {
         try {
             String pathFile1 = getFilePath(context, fileName1);
             String pathFile2 = getFilePath(context, fileName2);
-            Log.d(TAG, "compare: ++++++++");
-            Log.d(TAG, "pathFile1: ++++++++"+pathFile1);
-            IplImage image1 = cvLoadImage(pathFile1, CV_LOAD_IMAGE_GRAYSCALE);//报错
-            Log.d(TAG, "compare: 执行到这里了吗？");
+            IplImage image1 = cvLoadImage(pathFile1, CV_LOAD_IMAGE_GRAYSCALE);
             IplImage image2 = cvLoadImage(pathFile2, CV_LOAD_IMAGE_GRAYSCALE);
             if (null == image1 || null == image2) {
                 return -1;
             }
-            Log.d(TAG, "compare: 执行到这里了吗？");
             int l_bins = 256;
             int hist_size[] = {l_bins};
             float v_ranges[] = {0, 255};
@@ -234,7 +254,7 @@ public final class FaceUtil {
 
 
     /**
-     * 比较来个矩阵的相似度
+     * 比较两个矩阵的相似度
      * @param srcMat
      * @param desMat
      */
@@ -256,7 +276,6 @@ public final class FaceUtil {
      */
     private static String getFilePath(Context context, String fileName) {
         if (TextUtils.isEmpty(fileName)) {
-            return null;
         }
         Log.d(TAG, "getFilePath: "+context.getApplicationContext().getFilesDir().getPath() + fileName + ".jpg");
         // 内存路径

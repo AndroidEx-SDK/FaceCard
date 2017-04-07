@@ -3,6 +3,7 @@ package com.androidex.face;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidex.face.db.FaceDao;
+import com.androidex.face.db.UserInfo;
 import com.androidex.face.idcard.util.IdCardUtil;
 import com.kongqw.interfaces.OnFaceDetectorListener;
 import com.kongqw.interfaces.OnOpenCVInitListener;
@@ -26,13 +29,16 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements OnFaceDetectorListener ,IdCardUtil.BitmapCallBack{
 
     private static final String TAG = "MainActivity";
     private static final String FACE1 = "face1";
     private static final String FACE2 = "face2";
-    private static final int MINCMP = 10;
+    private static final int MINCMP = 80;
     private static boolean isGettingFace = true;
+    private static boolean isSaveFace = false;
     private Bitmap mBitmapFace1;
     private Bitmap mBitmapFace2;
     private Bitmap mBitmapFace3;
@@ -40,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     private ImageView mImageViewFace2;
     private TextView mCmpPic;
     private double cmp ;
+    private double cmp1 = 0.0;
     private double cmpTemp;
     private CameraFaceDetectionView mCameraFaceDetectionView;
     private PermissionsManager mPermissionsManager;
@@ -49,12 +56,15 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     public  Mat matFace ;
     public Mat matFace1;
 
+    public FaceDao faceDao;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        faceDao = FaceDao.getInstance(this);
         // 检测人脸的View
         mCameraFaceDetectionView = (CameraFaceDetectionView) findViewById(R.id.cameraFaceDetectionView);
         if (mCameraFaceDetectionView != null) {
@@ -97,11 +107,11 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         mImageViewFace2 = (ImageView) findViewById(R.id.face2);
         mCmpPic = (TextView) findViewById(R.id.text_view);
         Button bn_get_face = (Button) findViewById(R.id.bn_get_face);
-        // 抓取一张人脸
+        // 存入人脸信息
         bn_get_face.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isGettingFace = true;
+                isSaveFace = true;
             }
         });
         Button switch_camera = (Button) findViewById(R.id.switch_camera);
@@ -152,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
             }
         };
     }
+
+
     private IDCard idCard;
     @Override
     protected void onResume() {
@@ -186,11 +198,45 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
      */
     @Override
     public void onFace(final Mat mat, final Rect rect) {
+        //是否录入人脸判断
+        Mat m = FaceUtil.grayChange(mat,rect);
+        if (isSaveFace){
+            isSaveFace = false;
+            //和文件里面已经存入的人脸做对比，有相同的则不存储，
+            //查询数据库
+            ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
+            userInfoArrayList = faceDao.getUserinfo();
+            if (userInfoArrayList!=null&&userInfoArrayList.size()>0){
+                for (int i= 0;i<userInfoArrayList.size();i++){
+                    UserInfo users = new UserInfo();
+                    users = userInfoArrayList.get(i);
+                    Bitmap bitmap = BitmapFactory.decodeFile(users.getFacepath());
+                    if (bitmap!=null){
+                        Mat ma = new Mat();
+                        Mat ma1 = new Mat();
+                        Utils.bitmapToMat(bitmap,ma);
+                        Imgproc.cvtColor(ma,ma1,Imgproc.COLOR_BGR2GRAY);
+                        cmp1 = FaceUtil.comPareHist(m,ma1);
+                        Log.d(TAG, "onFace: cmp1="+cmp1);
+                        if (cmp1>MINCMP){//有相同的，不存入
+                            Log.d(TAG, "onFace: 已经存入过");
+                            return;
+                        }
+                    }
+                }
+            }
+            if (cmp1<MINCMP){
+                Log.d(TAG, "onFace: 没有存入过");
+                String time = System.currentTimeMillis()+"";
+                //存入数据
+                FaceUtil.saveImage(this,mat,rect,time);
+                faceDao.insertUserinfo(null,getApplicationContext().getFilesDir().getPath() + time + ".jpg");
+            }
+        }
         if (isGettingFace){
             mBitmapFace1 = null;
             cmp = 0.0;
             cmpTemp = 0.0;
-            Mat m = FaceUtil.grayChange(mat,rect);
             // 保存人脸信息并显示
            // FaceUtil.saveImage(this, mat, rect, FACE1);
            // mBitmapFace1 = FaceUtil.getImage(this, FACE1);
@@ -203,8 +249,12 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                 Utils.bitmapToMat(mBitmapFace3,mat2);
                 //Imgproc.cvtColor(mat,mat11,Imgproc.COLOR_BGR2GRAY);
                 Imgproc.cvtColor(mat2,mat22, Imgproc.COLOR_BGR2GRAY);
+                //Mat mat1 = FaceUtil.extractSIFT(m);
+               // Mat mat11 = FaceUtil.extractSIFT(mat22);
                 cmp = FaceUtil.comPareHist(m,mat22);
                 Log.d(TAG, "onFace: cmp="+cmp);
+            }else{
+                
             }
         }
         runOnUiThread(new Runnable() {
