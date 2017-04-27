@@ -15,7 +15,8 @@ Synjone ID Card Reader Demo For Android Serial Port Development\n
     <string name="sdtsex">性别:</string>
     <string name="sdtnation">民族:</string>
     <string name="sdtbirthday">出生:</string>
-    <string name="sdtaddress">住址:</string><string name="sdtpidno">公民身份号码:</string>
+    <string name="sdtaddress">住址:</string>
+    <string name="sdtpidno">公民身份号码:</string>
 
     <string name="sdtgrantdept">发证机关:</string>
     <string name="sdtuserlife">有效期限:</string>

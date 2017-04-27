@@ -42,7 +42,7 @@ public class CameraFaceDetectionView extends JavaCameraView implements CameraBri
     private OnFaceDetectorListener mOnFaceDetectorListener;
     private OnOpenCVInitListener mOnOpenCVInitListener;
     private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
-    private CascadeClassifier mJavaDetector;
+    public static CascadeClassifier mJavaDetector;
     // 记录切换摄像头点击次数
     private int mCameraSwitchCount = 0;
 
@@ -73,7 +73,7 @@ public class CameraFaceDetectionView extends JavaCameraView implements CameraBri
         } else {
             // 加载失败
             Log.i(TAG, "loadOpenCV: ----------------------------");
-            Log.i(TAG, "loadOpenCV: " + "请先安装OpenCV Manager！ https://github.com/kongqw/KqwFaceDetectionDemo/tree/master/OpenCVManager");
+            Log.i(TAG, "loadOpenCV: " + "请先安装OpenCV Manager！ ");
             Log.i(TAG, "loadOpenCV: ----------------------------");
         }
 
@@ -110,6 +110,8 @@ public class CameraFaceDetectionView extends JavaCameraView implements CameraBri
                         if (mJavaDetector.empty()) {
                             Log.e(TAG, "级联分类器加载失败");
                             mJavaDetector = null;
+                        }else{
+                            Log.e(TAG, "级联分类器加载成功");
                         }
 
                     } catch (IOException e) {

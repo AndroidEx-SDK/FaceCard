@@ -1,21 +1,10 @@
 package com.androidex.face.door;
 
-import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.util.Log;
-
-import com.androidex.common.SoundPoolUtil;
-import com.androidex.plugins.kkfile;
-
 /**
  * Created by yangjun on 16/6/6.
  * 主要服务类,DoorLock主要提供开门,关门指令以及上报门开和关闭的事件.
  */
+/*
 public class DoorLock extends Service {
     public static final String TAG = "DoorLock";
     public static final String DoorLockOpenDoor          = "DoorLockOpenDoor";
@@ -46,11 +35,13 @@ public class DoorLock extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    /**
+    */
+/**
      * 注册广播
      *
      *
-     */
+     *//*
+
     private void initBroadCast(){
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MainActivity.DOOR_ACTION);
@@ -77,12 +68,14 @@ public class DoorLock extends Service {
         String rkeyDev = "/dev/rkey";
         int ident = 0;
 
-        /**
+        */
+/**
          * 开门指令
          * @param index     门的序号,主门=0,副门=1
          * @param delay     延迟关门的时间,0表示不启用延迟关门,大于0表示延迟时间,延迟时间为delay*150ms
          * @return          大于0表示成功,实际上等于9表示真正的成功,因为返回值表示写入的数据,开门指令长度为9.
-         */
+         *//*
+
         public int openDoor(int index, int delay){
             kkfile rkey = new kkfile();
 
@@ -120,3 +113,4 @@ public class DoorLock extends Service {
         }
     }
 }
+*/

@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.androidex.face">
+          package="com.androidex.face">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".idcard.Application"
         android:allowBackup="true"
-        android:name="com.androidex.face.idcard.Application"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.androidex.face.MainActivity"
+            android:name=".MainActivity"
             android:screenOrientation="landscape">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name="com.synjones.idcard.RemoteDecodeService"></service>
+
+        <service android:name="com.synjones.idcard.RemoteDecodeService"/>
+        <service android:name=".door.DoorLock"/>
+
+        <!-- 开机自启动广播接受 -->
+        <receiver android:name=".utils.BootRecevier" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".FaceActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "kong.qingwei.kqwfacedetectiondemo"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -107,7 +107,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.2.0'
-    compile project(':openCVLibrary2411')
     compile files('libs/synjonesSerial.jar')
-    compile files('libs/FaceppSDK.jar')
+    compile project(':openCVLibrary2411')
 }

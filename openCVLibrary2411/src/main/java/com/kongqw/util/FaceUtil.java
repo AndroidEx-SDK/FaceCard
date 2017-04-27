@@ -15,8 +15,14 @@ import org.bytedeco.javacpp.opencv_core.CvHistogram;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
+import org.opencv.features2d.DMatch;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.features2d.FeatureDetector;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -119,30 +125,47 @@ public final class FaceUtil {
         return mbitmap;
     }
 
-   /* *//**
-     *  提取图片sift特征
+   /* *
+     *  提取图片特征
      * @return
-     *//*
-    public static Mat extractSIFT(Mat test_mat){
-       // System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
+     */
+    public static Mat extractORB(Mat test_mat){
         Mat desc = new Mat();
-        FeatureDetector fd = FeatureDetector.create(FeatureDetector.SIFT);
+        FeatureDetector fd = FeatureDetector.create(FeatureDetector.ORB);
         MatOfKeyPoint mkp =new MatOfKeyPoint();
         Log.d(TAG, "extractSIFT: +++++++++----------");
-        *//**
-         * SURF,SIFT等各种有专利的算法在OpenCV里面是属于Non-free（非自由的），
-         * 在C++代码调用时需要调用nonfree模块才可以使用，
-         * 即可得知在官方移植的Android包里面也是没有移植这两种算法的。。。
-         *//*
         fd.detect(test_mat, mkp);//报错
         Log.d(TAG, "extractSIFT: +++++++++");
-        DescriptorExtractor de = DescriptorExtractor.create(DescriptorExtractor.SIFT);
-        de.compute(test_mat,mkp,desc );//提取sift特征
+        Log.d(TAG, "extractORB: 图像特征点个数"+mkp.size());
+        DescriptorExtractor de = DescriptorExtractor.create(DescriptorExtractor.ORB);
+        de.compute(test_mat,mkp,desc );//提取特征
+        Log.d(TAG, "extractORB: 特征描述矩阵大小"+desc.size());
         Log.d(TAG, "extractSIFT: "+desc.cols());
         Log.d(TAG, "extractSIFT: "+desc.rows());
         return desc;
     }
-*/
+    /**
+     * 匹配特征
+     */
+    public static double match(Mat face1,Mat face2){
+        double max = 0;
+        DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+        MatOfDMatch matches = new MatOfDMatch();
+        descriptorMatcher.match(face1,face2,matches);
+        Log.d(TAG, "match: 个数"+matches.size());
+        DMatch [] dma = matches.toArray();
+        for (int i = 0; i < dma.length; i++) {
+            double list = dma[i].distance;
+            if (list<100){
+                max++;
+            }
+            Log.d(TAG, "match: 距离="+list);
+        }
+        Log.d(TAG, "match: max="+max);
+        Log.d(TAG, "match: 相似度"+max/dma.length*100);
+        return max/dma.length*100;
+    }
+
     /**
      * 将bitmap保存至固定路径下
      * @param bitmap
@@ -208,7 +231,7 @@ public final class FaceUtil {
     }
 
     /**
-     * 特征对比
+     * 特征对比，直方图的比较
      *
      * @param context   Context
      * @param fileName1 人脸特征
@@ -263,7 +286,6 @@ public final class FaceUtil {
         srcMat.convertTo(srcMat, CvType.CV_32F);
         desMat.convertTo(desMat, CvType.CV_32F);
         double target = Imgproc.compareHist(srcMat, desMat, Imgproc.CV_COMP_CORREL);
-        Log.e(TAG, "相似度 ：   ==" + target);
         return target*100;
 
     }
