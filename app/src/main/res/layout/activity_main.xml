@@ -33,6 +33,17 @@
             android:layout_weight="2"
             android:id="@+id/rll">
 
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="10dp"
+                android:layout_centerInParent="true"
+                android:text="@string/notice"
+                android:background="#95000000"
+                android:textColor="#ffffff"
+                />
+
             <com.kongqw.view.CameraFaceDetectionView
                 android:id="@+id/cameraFaceDetectionView"
                 android:layout_width="match_parent"

@@ -152,6 +152,21 @@ public final class FaceUtil {
         DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
         MatOfDMatch matches = new MatOfDMatch();
         descriptorMatcher.match(face1,face2,matches);
+      /*  double max_dist = 0;
+        double min_dist = 100;
+        DMatch [] dma = matches.toArray();
+        for (int i = 0;i<dma.length;i++){
+            double dist = dma[i].distance;
+            if( dist < min_dist ) min_dist = dist;
+            if( dist > max_dist ) max_dist = dist;
+        }
+        Log.d(TAG, "match: max="+max_dist);
+        Log.d(TAG, "match: min="+min_dist);
+        for(int i = 0;i<dma.length;i++){
+            if(dma[i].distance<0.9*max_dist){
+                max++;
+            }
+        }*/
         Log.d(TAG, "match: 个数"+matches.size());
         DMatch [] dma = matches.toArray();
         for (int i = 0; i < dma.length; i++) {

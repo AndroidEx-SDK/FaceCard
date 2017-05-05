@@ -120,6 +120,20 @@
         android:textColor="#FF000000"
         android:textSize="20sp"
         android:layout_marginTop="20dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="成功次数:"
+        android:textSize="20sp"
+        android:textColor="#FF000000"
+        android:id="@+id/tv_sussess"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="失败次数:"
+        android:textSize="20sp"
+        android:textColor="#FF000000"
+        android:id="@+id/tv_error"/>
     <ImageView
         android:id="@+id/face1"
         android:layout_width="160dp"

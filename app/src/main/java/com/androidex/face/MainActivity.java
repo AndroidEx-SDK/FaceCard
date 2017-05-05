@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     public static final String DOOR_ACTION = "com.androidex.door";
     private static final String FACE1 = "face1";
     private static final String FACE2 = "face2";
-    private static final int MINCMP = 10;
+    private static final int MINCMP = 60;
     private static boolean isGettingFace = true;
     private static boolean isSaveFace = false;
     private boolean isShow = false;
@@ -77,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
 
     public FaceDao faceDao;
     private Button bt_look;
+    private TextView tv_sussess;
+    private TextView tv_error;
+    private static int times = 0;
+    private static int errorTimes = 0;
 
     private Handler handler;
 
@@ -88,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
         int height = wm.getDefaultDisplay().getHeight();
-
         faceDao = FaceDao.getInstance(this);
         //loadFaceImg = new LoadFaceImg(this);
         //开启开门服务
@@ -138,6 +141,8 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
 
         }
         // 显示的View
+        tv_sussess = (TextView)findViewById(R.id.tv_sussess);
+        tv_error = (TextView)findViewById(R.id.tv_error);
         mImageViewFace1 = (ImageView) findViewById(R.id.face1);
         mImageViewFace2 = (ImageView) findViewById(R.id.face2);
         mCmpPic = (TextView) findViewById(R.id.text_view);
@@ -264,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     @Override
     public void onFace( final Mat mat, final Rect rect) {
         //是否录入人脸判断
-
         if (isSaveFace){
             isSaveFace = false;
             //和文件里面已经存入的人脸做对比，有相同的则不存储，
@@ -312,19 +316,25 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
             }else{
                 ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
                 userInfoArrayList = faceDao.getUserinfo();
-
+               // FaceUtil.saveImage(this,mat,rect,FACE1);
                 if (userInfoArrayList!=null&&userInfoArrayList.size()>0){
                     for (int i= 0;i<userInfoArrayList.size();i++){
                         UserInfo users = new UserInfo();
                         users = userInfoArrayList.get(i);
+                        /*cmp = FaceUtil.compare(this,users.getFacepath(),FACE1);
+                        if (cmp>MINCMP){//
+                            break;
+                        }*/
                         Bitmap bitmap = BitmapFactory.decodeFile(users.getFacepath());
                         if (bitmap!=null){
+                            Mat matFinal = FaceUtil.grayChange(mat,rect);
                             Mat ma = new Mat();
                             Mat ma1 = new Mat();
                             Utils.bitmapToMat(bitmap,ma);
                             Imgproc.cvtColor(ma,ma1,Imgproc.COLOR_BGR2GRAY);
-                            ma1 = FaceUtil.extractORB(ma1);
-                            cmp = FaceUtil.match(m,ma1);
+                            //ma1 = FaceUtil.extractORB(ma1);
+                            //cmp = FaceUtil.match(m,ma1);
+                            cmp = FaceUtil.comPareHist(matFinal,ma1);
                             if (cmp>MINCMP){//
                                 break;
                             }
@@ -348,7 +358,13 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                     }
                 }
                 face_time.setText("识别时间:"+(afterTime-startTime)+"ms");
-                mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%");
+                if (cmp>50){
+                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%    是同一个人");
+                    tv_sussess.setText("成功次数:"+times++);
+                }else{
+                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%    不是同一个人");
+                    tv_error.setText("失败次数:"+errorTimes++);
+                }
             }
         });
 

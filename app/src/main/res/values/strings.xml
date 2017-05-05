@@ -23,4 +23,5 @@ Synjone ID Card Reader Demo For Android Serial Port Development\n
     <string name="sdtreadcard">读卡</string>
     <string name="sdtexit">退出</string>
     <string name="sdtstatus">状态:</string>
+    <string name="notice">温馨提示:按1录入人脸，按2查看已录入的人脸，再按1返回</string>
 </resources>
