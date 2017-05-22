@@ -359,10 +359,10 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                 }
                 face_time.setText("识别时间:"+(afterTime-startTime)+"ms");
                 if (cmp>50){
-                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%    是同一个人");
+                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
                     tv_sussess.setText("成功次数:"+times++);
                 }else{
-                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%    不是同一个人");
+                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
                     tv_error.setText("失败次数:"+errorTimes++);
                 }
             }
