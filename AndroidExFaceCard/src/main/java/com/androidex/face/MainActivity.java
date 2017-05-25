@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidex.face.db.FaceDao;
-import com.androidex.face.db.UserInfo;
 import com.androidex.face.idcard.util.IdCardUtil;
 import com.kongqw.interfaces.OnFaceDetectorListener;
 import com.kongqw.interfaces.OnOpenCVInitListener;
@@ -37,13 +35,10 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-
-import java.util.ArrayList;
 
 import static com.kongqw.view.CameraFaceDetectionView.mJavaDetector;
 
-public class MainActivity extends AppCompatActivity implements OnFaceDetectorListener ,IdCardUtil.BitmapCallBack{
+public class MainActivity extends AppCompatActivity implements OnFaceDetectorListener, IdCardUtil.BitmapCallBack {
 
     private static final String TAG = "MainActivity";
     public static final String DOOR_ACTION = "com.androidex.door";
@@ -58,21 +53,22 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     private Bitmap mBitmapFace3;
     private ImageView mImageViewFace1;
     private ImageView mImageViewFace2;
-    private TextView textViewName,textViewSex,textViewNation,textViewBirthday,textViewPIDNo,textViewAddress;//身份证信息
+    private TextView textViewName, textViewSex, textViewNation, textViewBirthday, textViewPIDNo, textViewAddress;//身份证信息
     private ImageView imageViewPhoto;
     private TextView face_time;//识别时间
     private TextView mCmpPic;
-    private double cmp ;
+    private double mMaxCmp = 0.0;
+    private double cmp = 0.0;
     private double cmp1 = 0.0;
     private double cmp2 = 0.0;
     private double cmpTemp;
-    private long startTime , afterTime; //比对的前后时间
+    private long startTime, afterTime; //比对的前后时间
     private CameraFaceDetectionView mCameraFaceDetectionView;
     private PermissionsManager mPermissionsManager;
 
     private IdCardUtil mIdCardUtil;
 
-    public  MatOfRect matFace ;
+    public MatOfRect matFace;
     public Mat matFace1;
 
     public FaceDao faceDao;
@@ -100,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         // 检测人脸的View
         mCameraFaceDetectionView = (CameraFaceDetectionView) findViewById(R.id.cameraFaceDetectionView);
         //动态设置宽和高
-        RelativeLayout.LayoutParams linearParams =(RelativeLayout.LayoutParams) mCameraFaceDetectionView.getLayoutParams(); //取控件textView当前的布局参数
-        linearParams.height = height*2;
+        RelativeLayout.LayoutParams linearParams = (RelativeLayout.LayoutParams) mCameraFaceDetectionView.getLayoutParams(); //取控件textView当前的布局参数
+        linearParams.height = height * 2;
         //linearParams.width = width/2;
         mCameraFaceDetectionView.setLayoutParams(linearParams); //使设置好的布局参数应用到控件
         if (mCameraFaceDetectionView != null) {
@@ -141,27 +137,27 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
 
         }
         // 显示的View
-        tv_sussess = (TextView)findViewById(R.id.tv_sussess);
-        tv_error = (TextView)findViewById(R.id.tv_error);
+        tv_sussess = (TextView) findViewById(R.id.tv_sussess);
+        tv_error = (TextView) findViewById(R.id.tv_error);
         mImageViewFace1 = (ImageView) findViewById(R.id.face1);
         mImageViewFace2 = (ImageView) findViewById(R.id.face2);
         mCmpPic = (TextView) findViewById(R.id.text_view);
-        face_time = (TextView)findViewById(R.id.face_time);
+        face_time = (TextView) findViewById(R.id.face_time);
         Button bn_get_face = (Button) findViewById(R.id.bn_get_face);
         //身份证信息view
-        textViewName = (TextView)findViewById(R.id.textViewName);
-        textViewSex = (TextView)findViewById(R.id.textViewSex);
-        textViewBirthday = (TextView)findViewById(R.id.textViewBirthday);
-        textViewNation = (TextView)findViewById(R.id.textViewNation);
-        textViewAddress = (TextView)findViewById(R.id.textViewAddress);
-        textViewPIDNo = (TextView)findViewById(R.id.textViewPIDNo);
-        imageViewPhoto = (ImageView)findViewById(R.id.imageViewPhoto);
+        textViewName = (TextView) findViewById(R.id.textViewName);
+        textViewSex = (TextView) findViewById(R.id.textViewSex);
+        textViewBirthday = (TextView) findViewById(R.id.textViewBirthday);
+        textViewNation = (TextView) findViewById(R.id.textViewNation);
+        textViewAddress = (TextView) findViewById(R.id.textViewAddress);
+        textViewPIDNo = (TextView) findViewById(R.id.textViewPIDNo);
+        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
         //查看已经录入的人脸信息
-        bt_look = (Button)findViewById(R.id.bt_look);
+        bt_look = (Button) findViewById(R.id.bt_look);
         bt_look.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,FaceActivity.class);
+                Intent intent = new Intent(MainActivity.this, FaceActivity.class);
                 startActivity(intent);
             }
         });
@@ -222,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
 
 
     private IDCard idCard;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -230,8 +227,8 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         // 检查权限
         mPermissionsManager.checkPermissions(0, PERMISSIONS);
         //打开阅读器
-        if(mIdCardUtil==null){
-            mIdCardUtil = new IdCardUtil(this,this);
+        if (mIdCardUtil == null) {
+            mIdCardUtil = new IdCardUtil(this, this);
         }
         mIdCardUtil.openIdCard();
         mIdCardUtil.readIdCard();
@@ -240,12 +237,12 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode==KeyEvent.KEYCODE_1){
+        if (keyCode == KeyEvent.KEYCODE_1) {
             //录入人脸
             isSaveFace = true;
-        }else if(keyCode==KeyEvent.KEYCODE_2){
+        } else if (keyCode == KeyEvent.KEYCODE_2) {
             //查看
-            Intent intent = new Intent(MainActivity.this,FaceActivity.class);
+            Intent intent = new Intent(MainActivity.this, FaceActivity.class);
             startActivity(intent);
         }
         return super.onKeyDown(keyCode, event);
@@ -257,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
      * @param view view
      */
     public void setPermissions(View view) {
-       PermissionsManager.startAppSettings(getApplicationContext());
+        PermissionsManager.startAppSettings(getApplicationContext());
     }
 
     /**
@@ -267,54 +264,59 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
      * @param rect Rect
      */
     @Override
-    public void onFace( final Mat mat, final Rect rect) {
+    public void onFace(final Mat mat, final Rect rect) {
         //是否录入人脸判断
-        if (isSaveFace){
+        if (isSaveFace) {
             isSaveFace = false;
             //和文件里面已经存入的人脸做对比，有相同的则不存储，
             //查询数据库
+/*
             ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
             userInfoArrayList = faceDao.getUserinfo();
-            if (userInfoArrayList!=null&&userInfoArrayList.size()>0){
-                for (int i= 0;i<userInfoArrayList.size();i++){
+            if (userInfoArrayList != null && userInfoArrayList.size() > 0) {
+                for (int i = 0; i < userInfoArrayList.size(); i++) {
                     UserInfo users = new UserInfo();
                     users = userInfoArrayList.get(i);
                     Bitmap bitmap = BitmapFactory.decodeFile(users.getFacepath());
-                    if (bitmap!=null){
-                        Mat matFinal = FaceUtil.grayChange(mat,rect);
+                    if (bitmap != null) {
+                        Mat matFinal = FaceUtil.grayChange(mat, rect);
                         Mat ma = new Mat();
                         Mat ma1 = new Mat();
-                        Utils.bitmapToMat(bitmap,ma);
+                        Utils.bitmapToMat(bitmap, ma);
 
-                        Imgproc.cvtColor(ma,ma1,Imgproc.COLOR_BGR2GRAY);
+                        Imgproc.cvtColor(ma, ma1, Imgproc.COLOR_BGR2GRAY);
 
-                        cmp1= FaceUtil.comPareHist(matFinal,ma1);
-                        Log.d(TAG, "onFace: cmp1="+cmp1);
-                        if (cmp1>MINCMP){//有相同的，不存入
+                        cmp1 = FaceUtil.comPareHist(matFinal, ma1);//
+                        Log.d(TAG, "onFace: cmp1=" + cmp1);
+                        if (cmp1 > MINCMP) {//有相同的，不存入
                             Log.d(TAG, "onFace: 已经存入过");
                             break;
                         }
                     }
                 }
             }
-            if (cmp1<MINCMP){
+            if (cmp1 < MINCMP) {
                 Log.d(TAG, "onFace: 没有存入过");
-                String time = System.currentTimeMillis()+"";
+                String time = System.currentTimeMillis() + "";
                 //存入数据
-                FaceUtil.saveImage(this,mat,rect,time);
-                faceDao.insertUserinfo(null,getApplicationContext().getFilesDir().getPath() + time + ".jpg");
+                FaceUtil.saveImage(this, mat, rect, time);
+                faceDao.insertUserinfo(null, getApplicationContext().getFilesDir().getPath() + time + ".jpg");
                 isShow = true;
             }
+*/
         }
-        if (isGettingFace){
+        if (isGettingFace) {
             mBitmapFace1 = null;
             cmpTemp = 0.0;
-            //计算相似度
             Mat m = FaceUtil.extractORB(mat);
-            if (idCard!=null){//读取到身份证照片才做对比
+            if (idCard != null && matFace1 != null) {//读取到身份证照片才做对比
                 startTime = System.currentTimeMillis();
-                cmp = FaceUtil.match(m,matFace1);
+                cmp = FaceUtil.match(m, matFace1);//计算相似度
                 afterTime = System.currentTimeMillis();
+                if (mMaxCmp < cmp) {
+                    mMaxCmp = cmp;
+                    UpdateFaceResult(mat, rect, mMaxCmp);
+                }
             }
           /*  else{
                 ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
@@ -346,50 +348,46 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                 }
             }*/
         }
+    }
+
+    private void UpdateFaceResult(final Mat mat, final Rect rect, final double lcmp) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (idCard!=null){
+                if (idCard != null) {
                     if (null == mat) {
                         mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
-
                     } else {
-                        face_time.setText("识别时间:"+(afterTime-startTime)+"ms");
-                        //人脸录入成功，则显示图片
-//                        if(isShow){
-//
-////                            mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
-////                            mImageViewFace1.setImageBitmap(mBitmapFace1);
-//                            isShow = false;
+                        face_time.setText("识别时间:" + (afterTime - startTime) + "ms");
+
+
+                        if (lcmp > 50) {
+                            FaceUtil.saveImage(MainActivity.this, mat, rect, FACE1);
+                            mBitmapFace1 = FaceUtil.getImage(MainActivity.this, FACE1);
+                            mImageViewFace1.setImageBitmap(mBitmapFace1);
+                            mCmpPic.setText(String.format("相似度 :  高（%.2f%%）", cmp));
+                        } else if (lcmp >= 40 && lcmp <= 50) {
+                            //FaceUtil.saveImage(MainActivity.this,mat,rect,FACE1);
+                            //mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
+                            //mImageViewFace1.setImageBitmap(mBitmapFace1);
+                            //mCmpPic.setText("相似度 :  中");
+                        } else {
+                            //mCmpPic.setText("相似度 :  低");
+                        }
+
+//                        mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
+//                        if (cmp > 50) {
+//                            tv_sussess.setText("成功次数:" + times++);
+//                        } else {
+//                            tv_error.setText("失败次数:" + errorTimes++);
 //                        }
 
-                        if(cmp>50){
-                            FaceUtil.saveImage(MainActivity.this,mat,rect,FACE1);
-                            mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
-                            mImageViewFace1.setImageBitmap(mBitmapFace1);
-
-                            mCmpPic.setText("相似度 :  高");
-
-                        }else if (cmp>=40&&cmp<=50){
-                            mCmpPic.setText("相似度 :  中");
-
-                        }else {
-                            mCmpPic.setText("相似度 :  低");
-                        }
                     }
-                }else{
+                } else {
                     mCmpPic.setText("相似度 :    ");
                     face_time.setText("识别时间:");
+                    mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
                 }
-
-
-//                if (cmp>50){
-//                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
-//                    tv_sussess.setText("成功次数:"+times++);
-//                }else{
-//                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
-//                    tv_error.setText("失败次数:"+errorTimes++);
-//                }
             }
         });
     }
@@ -410,38 +408,40 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
     //身份证回调
     @Override
     public void callBack(int a) {
-        if (a ==IdCardUtil.READ){
+        if (a == IdCardUtil.READ) {
             idCard = mIdCardUtil.getIdCard();
-            if (idCard!=null){
-                if(matFace == null)matFace = new MatOfRect();
-                if (matFace1==null)matFace1 = new Mat();
+            if (idCard != null) {
+                if (matFace == null) matFace = new MatOfRect();
+                if (matFace1 == null) matFace1 = new Mat();
                 Mat mat2 = new Mat();
                 mBitmapFace2 = idCard.getPhoto();
                 mBitmapFace3 = FaceUtil.getSizeBmp(FaceUtil.grey(mBitmapFace2));
-                Utils.bitmapToMat(mBitmapFace3,mat2);
-                if (mJavaDetector!=null){
-                    Log.e(TAG, "onCreate: 级联容器加载成功");
+                Utils.bitmapToMat(mBitmapFace3, mat2);
+                if (mJavaDetector != null) {
+                    //Log.e(TAG, "onCreate: 级联容器加载成功");
                     mJavaDetector.detectMultiScale(mat2, matFace);
                     //取出身份证人脸部分
-                    Rect []rects = matFace.toArray();
-                    for (Rect rect : rects){
+                    Rect[] rects = matFace.toArray();
+                    for (Rect rect : rects) {
                         Core.rectangle(mat2, new Point(rect.x, rect.y), new Point(rect.x
                                 + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
-                        matFace1 = FaceUtil.grayChange(mat2,rect);
+                        matFace1 = FaceUtil.grayChange(mat2, rect);
                         matFace1 = FaceUtil.extractORB(matFace1);
                     }
-                }else{
-                    Log.e(TAG, "onCreate: 级联容器加载失败");
+                } else {
+                    //Log.e(TAG, "onCreate: 级联容器加载失败");
                 }
-            }else{
-               // isGettingFace = true;
-
-
+            } else {
+                // isGettingFace = true;
+                matFace = null;
+                matFace1 = null;
+                mMaxCmp = 0;
+                UpdateFaceResult(null, null, 0);
             }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (null == mBitmapFace2||idCard==null) {
+                    if (null == mBitmapFace2 || idCard == null) {
                         textViewName.setText("姓名:");
                         textViewSex.setText("性别");
                         textViewBirthday.setText("生日:");
@@ -451,15 +451,33 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                         imageViewPhoto.setImageResource(R.drawable.photo);
                         mImageViewFace2.setImageResource(R.mipmap.ic_contact_picture);
                     } else {
-                        textViewName.setText("姓名:"+idCard.getName());
-                        textViewSex.setText("性别:"+idCard.getSex());
-                        textViewBirthday.setText("生日:"+idCard.getBirthday());
-                        textViewNation.setText("名族:"+idCard.getNation());
-                        textViewAddress.setText("住址:"+idCard.getAddress());
-                        textViewPIDNo.setText("身份证号码:"+idCard.getIDCardNo());
+                        textViewName.setText("姓名:" + idCard.getName());
+                        textViewSex.setText("性别:" + idCard.getSex());
+                        textViewBirthday.setText("生日:" + idCard.getBirthday());
+                        textViewNation.setText("名族:" + idCard.getNation());
+                        textViewAddress.setText("住址:" + idCard.getAddress());
+                        textViewPIDNo.setText("身份证号码:" + idCard.getIDCardNo());
                         imageViewPhoto.setImageBitmap(mBitmapFace2);
                         mImageViewFace2.setImageBitmap(mBitmapFace2);
                     }
+                }
+            });
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textViewName.setText("姓名:");
+                    textViewSex.setText("性别");
+                    textViewBirthday.setText("生日:");
+                    textViewNation.setText("名族:");
+                    textViewAddress.setText("住址：");
+                    textViewPIDNo.setText("身份证号码:");
+                    imageViewPhoto.setImageResource(R.drawable.photo);
+                    mImageViewFace2.setImageResource(R.mipmap.ic_contact_picture);
+                    matFace = null;
+                    matFace1 = null;
+                    mMaxCmp = 0;
+                    UpdateFaceResult(null, null, 0);
                 }
             });
         }

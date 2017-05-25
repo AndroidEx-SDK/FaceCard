@@ -30,6 +30,7 @@ public class IdCardUtil {
     private static final String TAG = "IdCardUtil";
 
     public static final int READ = 0x01;
+    public static final int NOREAD = 0x0;
     private Application mApplication;
     protected SerialPort mSerialPort;
     protected OutputStream mOutputStream;
@@ -132,7 +133,6 @@ public class IdCardUtil {
             Looper.prepare();
             while (reading) {
                 //发送消息出去
-                bitmapCallBack.callBack(READ);
                 idCard = idreader.getIDCardFp();
                 if (idCard != null) {
                     com.synjones.bluetooth.DecodeWlt mydw = new com.synjones.bluetooth.DecodeWlt();
@@ -159,8 +159,9 @@ public class IdCardUtil {
                     //取出bitmap文件
                     bmp = BitmapFactory.decodeFile(bmpPath);
                     idCard.setPhoto(bmp);
-
+                    bitmapCallBack.callBack(READ);
                 } else {
+                    bitmapCallBack.callBack(NOREAD);
                     continue;
                 }
 

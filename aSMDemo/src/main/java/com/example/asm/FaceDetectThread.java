@@ -1,11 +1,11 @@
 package com.example.asm;
 
-import org.opencv.core.Mat;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import org.opencv.core.Mat;
 
 public class FaceDetectThread extends Thread {
 	private final String TAG = "com.example.asm.FaceDetectThread";
@@ -41,7 +41,7 @@ public class FaceDetectThread extends Thread {
 					Mat detected = new Mat();
 					Mat face = new Mat();
 					Mat src = (Mat) msg.obj;
-					detected = imageUtils.detectFacesAndExtractFace(src, face);
+					detected = imageUtils.detectFacesAndExtractFace(src, face);//检测人脸提取人脸
 
 					Message uiMsg = new Message();
 					uiMsg.what = Params.FACE_DETECT_DONE;

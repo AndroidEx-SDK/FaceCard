@@ -34,7 +34,6 @@ import java.io.File;
 import util.ImageUtil;
 import util.MyToast;
 
-
 public class FaceDetectActivity extends Activity {
 	static final String tag="zhang";
 	ImageView imgView=null;
@@ -151,7 +150,7 @@ public class FaceDetectActivity extends Activity {
 
 		//int degree = readPictureDegree("/sdcard/pic.jpg");
 		srcImg=BitmapFactory.decodeFile("/sdcard/pic.jpg");
-		srcImg=rotate(srcImg,90);
+		srcImg=rotate(srcImg,0);
 		int h=srcImg.getHeight();
 		int w=srcImg.getWidth();
 		float r=(float)h/(float)w;
@@ -177,8 +176,7 @@ public class FaceDetectActivity extends Activity {
 			Log.i(tag, "Unusefal face, give up!");
 			//MyToast.showToast(getApplicationContext(),"Face Detect Failure!");
 			return false;
-		}
-		else{
+		} else{
 			Log.i(tag, "Usefal face, keep it!");
 			return true;
 		}

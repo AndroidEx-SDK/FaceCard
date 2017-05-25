@@ -133,15 +133,15 @@ public final class FaceUtil {
         Mat desc = new Mat();
         FeatureDetector fd = FeatureDetector.create(FeatureDetector.ORB);
         MatOfKeyPoint mkp =new MatOfKeyPoint();
-        Log.d(TAG, "extractSIFT: +++++++++----------");
+        //Log.d(TAG, "extractSIFT: +++++++++----------");
         fd.detect(test_mat, mkp);//报错
-        Log.d(TAG, "extractSIFT: +++++++++");
-        Log.d(TAG, "extractORB: 图像特征点个数"+mkp.size());
+        //Log.d(TAG, "extractSIFT: +++++++++");
+        //Log.d(TAG, "extractORB: 图像特征点个数"+mkp.size());
         DescriptorExtractor de = DescriptorExtractor.create(DescriptorExtractor.ORB);
         de.compute(test_mat,mkp,desc );//提取特征
-        Log.d(TAG, "extractORB: 特征描述矩阵大小"+desc.size());
-        Log.d(TAG, "extractSIFT: "+desc.cols());
-        Log.d(TAG, "extractSIFT: "+desc.rows());
+        //Log.d(TAG, "extractORB: 特征描述矩阵大小"+desc.size());
+        //Log.d(TAG, "extractSIFT: "+desc.cols());
+        //Log.d(TAG, "extractSIFT: "+desc.rows());
         return desc;
     }
     /**
@@ -167,17 +167,17 @@ public final class FaceUtil {
                 max++;
             }
         }*/
-        Log.d(TAG, "match: 个数"+matches.size());
+        //Log.d(TAG, "match: 个数"+matches.size());
         DMatch [] dma = matches.toArray();
         for (int i = 0; i < dma.length; i++) {
             double list = dma[i].distance;
             if (list<100){
                 max++;
             }
-            Log.d(TAG, "match: 距离="+list);
+            //Log.d(TAG, "match: 距离="+list);
         }
-        Log.d(TAG, "match: max="+max);
-        Log.d(TAG, "match: 相似度"+max/dma.length*100);
+        //Log.d(TAG, "match: max="+max);
+        //Log.d(TAG, "match: 相似度"+max/dma.length*100);
         return max/dma.length*100;
     }
 

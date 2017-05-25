@@ -82,10 +82,10 @@ public class MainActivity extends Activity implements PreviewCallback {
 			public void handleMessage(Message msg) {
 				if (msg.what == Params.FACE_DETECT_DONE) {
 					Mat detected = (Mat) msg.obj;
-					Bitmap face_detected_bitmap = ImageUtils
-							.mat2Bitmap(detected);
-					iv_face_detect_img_view
-							.setImageBitmap(face_detected_bitmap);
+
+					Bitmap face_detected_bitmap = ImageUtils.mat2Bitmap(detected);
+
+					iv_face_detect_img_view.setImageBitmap(face_detected_bitmap);
 				}
 			}
 		};
@@ -284,14 +284,11 @@ public class MainActivity extends Activity implements PreviewCallback {
 		}
 
 		if (points[0] == Params.ASMError.BAD_INPUT) {
-			Toast.makeText(MainActivity.this, "Cannot load image",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "Cannot load image", Toast.LENGTH_SHORT).show();
 		} else if (points[0] == Params.ASMError.INIT_FAIL) {
-			Toast.makeText(MainActivity.this, "Error in stasm_search_single!",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "Error in stasm_search_single!", Toast.LENGTH_SHORT).show();
 		} else if (points[0] == Params.ASMError.NO_FACE_FOUND) {
-			Toast.makeText(MainActivity.this, "No face found in input image",
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "No face found in input image", Toast.LENGTH_SHORT).show();
 		} else {
 			faceFound = true;
 			for (int i = 0; i < points.length / 2 - 1; i++) {
