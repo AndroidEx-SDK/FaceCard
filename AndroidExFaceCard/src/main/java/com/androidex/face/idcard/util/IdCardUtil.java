@@ -110,6 +110,11 @@ public class IdCardUtil {
             ReadCardThreadhandler.start();
         } else {
             closeReadThread();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -155,13 +160,8 @@ public class IdCardUtil {
                     bmp = BitmapFactory.decodeFile(bmpPath);
                     idCard.setPhoto(bmp);
 
-                }else {
-
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } else {
+                    continue;
                 }
 
             }

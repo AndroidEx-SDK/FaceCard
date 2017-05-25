@@ -76,8 +76,8 @@
         </LinearLayout>
 
 
-
     </LinearLayout>
+
     <TextView
         android:id="@+id/textViewAddress"
         android:layout_width="wrap_content"
@@ -110,7 +110,6 @@
         android:layout_marginTop="60dp"/>
 
 
-
     <TextView
         android:id="@+id/face_time"
         android:layout_width="wrap_content"
@@ -120,7 +119,9 @@
         android:textColor="#FF000000"
         android:textSize="20sp"
         android:layout_marginTop="20dp"/>
+
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="成功次数:"
@@ -128,6 +129,7 @@
         android:textColor="#FF000000"
         android:id="@+id/tv_sussess"/>
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="失败次数:"

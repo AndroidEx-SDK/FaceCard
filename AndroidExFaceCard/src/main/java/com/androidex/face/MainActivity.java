@@ -285,7 +285,9 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                         Mat ma = new Mat();
                         Mat ma1 = new Mat();
                         Utils.bitmapToMat(bitmap,ma);
+
                         Imgproc.cvtColor(ma,ma1,Imgproc.COLOR_BGR2GRAY);
+
                         cmp1= FaceUtil.comPareHist(matFinal,ma1);
                         Log.d(TAG, "onFace: cmp1="+cmp1);
                         if (cmp1>MINCMP){//有相同的，不存入
@@ -313,7 +315,8 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                 startTime = System.currentTimeMillis();
                 cmp = FaceUtil.match(m,matFace1);
                 afterTime = System.currentTimeMillis();
-            }else{
+            }
+          /*  else{
                 ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
                 userInfoArrayList = faceDao.getUserinfo();
                // FaceUtil.saveImage(this,mat,rect,FACE1);
@@ -321,10 +324,10 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                     for (int i= 0;i<userInfoArrayList.size();i++){
                         UserInfo users = new UserInfo();
                         users = userInfoArrayList.get(i);
-                        /*cmp = FaceUtil.compare(this,users.getFacepath(),FACE1);
+                        *//*cmp = FaceUtil.compare(this,users.getFacepath(),FACE1);
                         if (cmp>MINCMP){//
                             break;
-                        }*/
+                        }*//*
                         Bitmap bitmap = BitmapFactory.decodeFile(users.getFacepath());
                         if (bitmap!=null){
                             Mat matFinal = FaceUtil.grayChange(mat,rect);
@@ -341,33 +344,54 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                         }
                     }
                 }
-            }
+            }*/
         }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (null == mat) {
-                    mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
-                } else {
-                   //人脸录入成功，则显示图片
-                    if(isShow){
-                        FaceUtil.saveImage(MainActivity.this,mat,rect,FACE1);
-                        mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
-                        mImageViewFace1.setImageBitmap(mBitmapFace1);
-                        isShow = false;
+                if (idCard!=null){
+                    if (null == mat) {
+                        mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
+
+                    } else {
+                        face_time.setText("识别时间:"+(afterTime-startTime)+"ms");
+                        //人脸录入成功，则显示图片
+//                        if(isShow){
+//
+////                            mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
+////                            mImageViewFace1.setImageBitmap(mBitmapFace1);
+//                            isShow = false;
+//                        }
+
+                        if(cmp>50){
+                            FaceUtil.saveImage(MainActivity.this,mat,rect,FACE1);
+                            mBitmapFace1 = FaceUtil.getImage(MainActivity.this,FACE1);
+                            mImageViewFace1.setImageBitmap(mBitmapFace1);
+
+                            mCmpPic.setText("相似度 :  高");
+
+                        }else if (cmp>=40&&cmp<=50){
+                            mCmpPic.setText("相似度 :  中");
+
+                        }else {
+                            mCmpPic.setText("相似度 :  低");
+                        }
                     }
-                }
-                face_time.setText("识别时间:"+(afterTime-startTime)+"ms");
-                if (cmp>50){
-                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
-                    tv_sussess.setText("成功次数:"+times++);
                 }else{
-                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
-                    tv_error.setText("失败次数:"+errorTimes++);
+                    mCmpPic.setText("相似度 :    ");
+                    face_time.setText("识别时间:");
                 }
+
+
+//                if (cmp>50){
+//                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
+//                    tv_sussess.setText("成功次数:"+times++);
+//                }else{
+//                    mCmpPic.setText(String.format("相似度 :  %.2f", cmp) + "%   ");
+//                    tv_error.setText("失败次数:"+errorTimes++);
+//                }
             }
         });
-
     }
 
     @Override
