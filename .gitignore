@@ -4,3 +4,5 @@ build
 *.iml
 *.pro
 *.properties
+jniaexlib.jar
+jniaexFaceLib.jar
