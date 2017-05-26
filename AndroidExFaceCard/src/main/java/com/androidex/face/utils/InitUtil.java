@@ -16,10 +16,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,10 +97,8 @@ public class InitUtil {
             out.close();
             Log.i(TAG, "已经保存");
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -147,22 +148,16 @@ public class InitUtil {
         }
     }
 
+
     /**
-     * jsonObject.put("name", idCard.getName());
-     * jsonObject.put("photo", idCard.getPhoto());
-     * jsonObject.put("sex", idCard.getSex());
-     * jsonObject.put("nation", idCard.getNation());
-     * jsonObject.put("birthday", idCard.getBirthday());
-     * jsonObject.put("address", idCard.getAddress());
-     * jsonObject.put("idnum", idCard.getIDCardNo());
-     * jsonObject.put("head", bmp);
      * 解析JSON文件的简单数组
      */
-    private List<Map<String, Object>> parseJson(String data) throws Exception {
-        List<Map<String, Object>> all = new ArrayList<Map<String, Object>>();
+    public static List<Map<String, String>> parseJson() throws Exception {
+        String data=getString2Txt();
+        List<Map<String, String>> all = new ArrayList<Map<String, String>>();
         JSONArray jsonArr = new JSONArray(data);    //是数组
         for (int x = 0; x < jsonArr.length(); x++) {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, String> map = new HashMap<String, String>();
             JSONObject jsonobj = jsonArr.getJSONObject(x);
             map.put("name", jsonobj.getString("head"));
             map.put("photo", jsonobj.getString("photo"));
@@ -175,6 +170,31 @@ public class InitUtil {
             all.add(map);
         }
         return all;
+    }
+
+    public static String getString2Txt() {
+        String str = null;
+        try {
+            File urlFile = new File(Environment.getExternalStorageDirectory()
+                    + File.separator + "mldndata" + File.separator
+                    + "json.txt");
+            InputStreamReader isr = new InputStreamReader(new FileInputStream(urlFile), "UTF-8");
+            BufferedReader br = new BufferedReader(isr);
+
+            String mimeTypeLine = null;
+            while ((mimeTypeLine = br.readLine()) != null) {
+                str = str + mimeTypeLine;
+            }
+            return str;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (str != null && str != "") {
+                return str;
+            }
+        }
+        Log.e(TAG, "文件为空");
+        return null;
     }
 
     /**

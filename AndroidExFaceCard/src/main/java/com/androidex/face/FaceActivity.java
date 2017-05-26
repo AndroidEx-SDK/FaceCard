@@ -30,6 +30,8 @@ import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 人脸识别示例
@@ -217,8 +219,27 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
         long afterTime = System.currentTimeMillis();
 
 
+    }
 
 
+    /**
+     * 获取存储的图片
+     */
+    public Map<String, String> getMap(String idnum) {
+        List<Map<String, String>> maps = null;
+        try {
+            maps = InitUtil.parseJson();
+
+            for (int i=0;i<maps.size();i++){
+                Map<String, String> map = maps.get(i);
+                if(map.get("idnum").equals(idnum)){
+                    return map;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       return null;
     }
 
     /**
