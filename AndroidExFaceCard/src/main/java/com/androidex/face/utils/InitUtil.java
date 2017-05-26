@@ -21,6 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -101,7 +105,7 @@ public class InitUtil {
     /**
      * 用JSON文件保存数组
      */
-    public static void saveJson(String[] data) {
+    public static void saveJsonStringArray(String[] data) {
 
         JSONObject allData = new JSONObject();//建立最外面的节点对象
         JSONArray sing = new JSONArray();//定义数组
@@ -143,6 +147,90 @@ public class InitUtil {
         }
     }
 
+    /**
+     * jsonObject.put("name", idCard.getName());
+     * jsonObject.put("photo", idCard.getPhoto());
+     * jsonObject.put("sex", idCard.getSex());
+     * jsonObject.put("nation", idCard.getNation());
+     * jsonObject.put("birthday", idCard.getBirthday());
+     * jsonObject.put("address", idCard.getAddress());
+     * jsonObject.put("idnum", idCard.getIDCardNo());
+     * jsonObject.put("head", bmp);
+     * 解析JSON文件的简单数组
+     */
+    private List<Map<String, Object>> parseJson(String data) throws Exception {
+        List<Map<String, Object>> all = new ArrayList<Map<String, Object>>();
+        JSONArray jsonArr = new JSONArray(data);    //是数组
+        for (int x = 0; x < jsonArr.length(); x++) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            JSONObject jsonobj = jsonArr.getJSONObject(x);
+            map.put("name", jsonobj.getString("head"));
+            map.put("photo", jsonobj.getString("photo"));
+            map.put("sex", jsonobj.getString("sex"));
+            map.put("nation", jsonobj.getString("nation"));
+            map.put("birthday", jsonobj.getString("birthday"));
+            map.put("address", jsonobj.getString("address"));
+            map.put("idnum", jsonobj.getString("idnum"));
+            map.put("head", jsonobj.getString("head"));
+            all.add(map);
+        }
+        return all;
+    }
+
+    /**
+     * 用JSON文件保存复杂数据
+     */
+    public void saveJson() {
+        JSONObject allData = new JSONObject();//建立最外面的节点对象
+        JSONArray sing = new JSONArray();//定义数组
+
+//        for(int x = 0; x < this.nameData.length; x++){//将数组内容配置到相应的节点
+//            JSONObject temp = new JSONObject();//JSONObject包装数据,而JSONArray包含多个JSONObject
+//            try {
+//                //每个JSONObject中，后加入的数据显示在前面
+//                temp.put("name", this.nameData[x]);
+//                temp.put("age", this.ageData[x]);
+//                temp.put("married", this.isMarriedData[x]);
+//                temp.put("salary", this.salaryData[x]);
+//                temp.put("birthday", this.birthdayData[x]);
+//                //JSONObject是按照key:value形式保存
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            sing.put(temp);//保存多个JSONObject
+//        }
+//        try {
+//            allData.put("persondata", sing);//把JSONArray用最外面JSONObject包装起来
+//            allData.put("company",this.companyName);
+//            allData.put("address",this.companyAddr);
+//            allData.put("telephone",this.companyTel);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+        if (!Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {//SD卡不存在则不操作
+            return;//返回到程序的被调用处
+        }
+        File file = new File(Environment.getExternalStorageDirectory()
+                + File.separator + "mldndata" + File.separator
+                + "json.txt");//要输出的文件路径
+        if (!file.getParentFile().exists()) {//文件不存在
+            file.getParentFile().mkdirs();//创建文件夹
+        }
+        PrintStream out = null;
+        try {
+            out = new PrintStream(new FileOutputStream(file));
+            out.print(allData.toString());//将数据变为字符串后保存
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();//关闭输出
+            }
+        }
+
+
+    }
 
     public static JSONObject getJsonSimple(IDCard idCard, Bitmap bmp) {
         JSONObject jsonObject = new JSONObject();

@@ -10,7 +10,7 @@ import android.widget.Button;
  * Created by cts on 17/5/26.
  */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,19 +31,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btn_facecard_demo://人证合一
-                Intent intent = new Intent(MainActivity.this,FaceCardActivity.class);
-                startActivity(intent);
-
-                break;
-
+        switch (view.getId()) {
             case R.id.btn_face_demo://人脸识别
-                Intent intent_face = new Intent(MainActivity.this,FaceActivity.class);
+                Intent intent_face = new Intent(MainActivity.this, FaceActivity.class);
                 startActivity(intent_face);
-
                 break;
-
+            
+            case R.id.btn_facecard_demo://人证合一
+                Intent intent = new Intent(MainActivity.this, FaceCardActivity.class);
+                startActivity(intent);
+                break;
 
 
         }

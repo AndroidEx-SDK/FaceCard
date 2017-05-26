@@ -43,6 +43,7 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
     private CardInfoDao mCardInfoDao;
     private IdCardUtil mIdCardUtil;
     private IDCard idCard;
+    private Bitmap head;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,6 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
     public void initDao() {
         mFaceDao = FaceDao.getInstance(this);
         mCardInfoDao = CardInfoDao.getInstance(this);
-
     }
 
     /**
@@ -73,12 +73,13 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void saveFace(Mat mat, final Rect rect) {
         if (checkIsSave(mat, rect)) {//为真表示存入
+            long millis = System.currentTimeMillis();
             //存入数据
-            FaceUtil.saveImage(this, mat, rect, System.currentTimeMillis() + "");
+            FaceUtil.saveImage(this, mat, rect, millis + ".png");
 
-            Toast.makeText(this, "录入完成", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "录入完成");
         } else {
-            Toast.makeText(this, "重复录入", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "重复录入");
 
         }
     }
@@ -168,10 +169,10 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_saveCardInfo://存储身份信息
-
-                if (idCard != null) {
-                    saveCardInfo(idCard);
+                if (idCard != null && head != null) {
+                    saveCardInfo(idCard, head);
                     idCard = null;
+                    head = null;
                 } else {
                     Toast.makeText(this, "身份证信息为空", Toast.LENGTH_LONG).show();
                 }
@@ -208,19 +209,19 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
         Mat mCharacteristic = FaceUtil.extractORB(matGray);//拿着检测到的人脸去提取图片特征
         saveFace(mat, rect);//自动存储人脸信息
 
+        FaceUtil.saveImage(FaceActivity.this, mat, rect, "face");
+        head = FaceUtil.getImage(FaceActivity.this, "face");
+
+        long startTime = System.currentTimeMillis();
+        double cmp = FaceUtil.match(mCharacteristic, mCharacteristic);//计算相似度,临时变量
+        long afterTime = System.currentTimeMillis();
+
+
+
 
     }
 
     /**
-     * *   db.execSQL("create table cardinfo(" +
-     * "_id integer primary key autoincrement," +
-     * "name text," +
-     * "imgPic text" +
-     * "sex text" +
-     * "nation text" +
-     * "birthday text" +
-     * "address text" +
-     * "idnum text"
      * 读取身份证回调
      *
      * @param a
@@ -229,10 +230,10 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
     public void callBack(int a) {
         if (a == IdCardUtil.READ) {
             idCard = mIdCardUtil.getIdCard();
-            if (idCard != null) {
-                saveCardInfo(idCard);
-                idCard = null;
-            }
+//            if (idCard != null) {//不自动存储
+//                saveCardInfo(idCard);
+//                idCard = null;
+//            }
         }
 
         runOnUiThread(new Runnable() {
@@ -242,7 +243,6 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-
     }
 
     /**
@@ -257,23 +257,26 @@ public class FaceActivity extends AppCompatActivity implements View.OnClickListe
      *
      * @param idCard
      */
-    private void saveCardInfo(IDCard idCard) {
-        Bitmap photo = idCard.getPhoto();
+    private void saveCardInfo(IDCard idCard, Bitmap head) {
+
+        Bitmap photo = idCard.getPhoto();//身份证照片
         long millis = System.currentTimeMillis();
-        InitUtil.saveBitmap("/sdcard/namecard/", millis + ".png", photo);
+        InitUtil.saveBitmap("/sdcard/facecard/", millis + ".png", photo);
+        long millis_head = System.currentTimeMillis();
+        InitUtil.saveBitmap("/sdcard/facecard/", millis_head + ".png", photo);
 
         String[] strArray = new String[8];
 
         strArray[0] = idCard.getName();
-        strArray[1] = "/sdcard/namecard/" + millis+".png";
+        strArray[1] = "/sdcard/facecard/" + millis + ".png";
         strArray[2] = idCard.getSex();
         strArray[3] = idCard.getNation();
         strArray[4] = idCard.getBirthday();
         strArray[5] = idCard.getAddress();
         strArray[6] = idCard.getIDCardNo();
-        strArray[7] = idCard.getIDCardNo();
+        strArray[7] = "/sdcard/facecard/" + millis_head + ".png";//检测到的人脸路径
 
-        InitUtil.saveJson(strArray);
+        InitUtil.saveJsonStringArray(strArray);
     }
 
     @Override
