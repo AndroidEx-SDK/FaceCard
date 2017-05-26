@@ -14,6 +14,7 @@ public class UserInfo {
     public UserInfo (String username, String facepath){
         this.username = username;
         this.facepath = facepath;
+
     }
 
     public void setUsername(String username) {
@@ -32,11 +33,8 @@ public class UserInfo {
         this.facepath = facepath;
     }
 
-    @Override
-    public String toString() {
-        return "UserInfo{" +
-                "username='" + username + '\'' +
-                ", facepath='" + facepath + '\'' +
-                '}';
-    }
+
+
+
+
 }

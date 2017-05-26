@@ -44,7 +44,7 @@ public class DoorLock extends Service {
 
     private void initBroadCast(){
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MainActivity.DOOR_ACTION);
+        intentFilter.addAction(FaceCardActivity.DOOR_ACTION);
         registerReceiver(mNotifityBroadCast,intentFilter);
     }
 
@@ -105,7 +105,7 @@ public class DoorLock extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (MainActivity.DOOR_ACTION.equals(action)){//收到开门广播
+            if (FaceCardActivity.DOOR_ACTION.equals(action)){//收到开门广播
                 if (mDoorLockServiceBinder!=null){//开门
                     mDoorLockServiceBinder.openDoor(0xF0,0x40);
                 }

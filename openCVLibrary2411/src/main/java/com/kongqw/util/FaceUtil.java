@@ -186,8 +186,6 @@ public final class FaceUtil {
         return max / dma.length * 100;
     }
 
-
-
     /**
      * 将bitmap保存至固定路径下
      *

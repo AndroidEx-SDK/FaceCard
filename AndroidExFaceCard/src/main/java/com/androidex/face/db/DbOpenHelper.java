@@ -26,6 +26,18 @@ public class DbOpenHelper extends SQLiteOpenHelper{
                 + "name text ,"
                 + "imgPic text"
                 +")");
+
+        db.execSQL("create table cardinfo(" +
+                "_id integer primary key autoincrement," +
+                "name text," +
+                "imgPic text" +
+                "sex text" +
+                "nation text" +
+                "birthday text" +
+                "address text" +
+                "idnum text" +
+                ")"
+        );
     }
 
     @Override
