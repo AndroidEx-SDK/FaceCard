@@ -1,14 +1,11 @@
 package com.androidex.face;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,7 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidex.face.db.FaceDao;
+import com.androidex.face.db.UserInfo;
 import com.androidex.face.idcard.util.IdCardUtil;
+import com.androidex.face.utils.InitUtil;
 import com.kongqw.interfaces.OnFaceDetectorListener;
 import com.kongqw.interfaces.OnOpenCVInitListener;
 import com.kongqw.util.FaceUtil;
@@ -35,11 +34,16 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
+import java.util.ArrayList;
 
 import static com.kongqw.view.CameraFaceDetectionView.mJavaDetector;
 
+/**
+ * 人证识别示例
+ */
 public class FaceCardActivity extends AppCompatActivity implements OnFaceDetectorListener, IdCardUtil.BitmapCallBack {
-
     private static final String TAG = "FaceCardActivity";
     public static final String DOOR_ACTION = "com.androidex.door";
     private static final String FACE1 = "face1";
@@ -67,32 +71,72 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
     private PermissionsManager mPermissionsManager;
 
     private IdCardUtil mIdCardUtil;
-
     public MatOfRect matFace;
     public Mat matFace1;
+    private IDCard idCard;
 
     public FaceDao faceDao;
     private Button bt_look;
-    private TextView tv_sussess;
-    private TextView tv_error;
-    private static int times = 0;
-    private static int errorTimes = 0;
-
-    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_facecard);
+
+        faceDao = FaceDao.getInstance(this);
+        //loadFaceImg = new LoadFaceImg(this);
+        initDetectView();//初始化人脸检测View
+        // 显示的View
+        mImageViewFace1 = (ImageView) findViewById(R.id.face1);
+        mImageViewFace2 = (ImageView) findViewById(R.id.face2);
+        mCmpPic = (TextView) findViewById(R.id.text_view);
+        face_time = (TextView) findViewById(R.id.face_time);
+        Button bn_get_face = (Button) findViewById(R.id.bn_get_face);
+        //身份证信息view
+        textViewName = (TextView) findViewById(R.id.textViewName);
+        textViewSex = (TextView) findViewById(R.id.textViewSex);
+        textViewBirthday = (TextView) findViewById(R.id.textViewBirthday);
+        textViewNation = (TextView) findViewById(R.id.textViewNation);
+        textViewAddress = (TextView) findViewById(R.id.textViewAddress);
+        textViewPIDNo = (TextView) findViewById(R.id.textViewPIDNo);
+        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
+        InitUtil.initPermissionManager(FaceCardActivity.this) ;//初始化权限管理类
+        //查看已经录入的人脸信息
+        bt_look = (Button) findViewById(R.id.bt_look);
+        bt_look.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FaceCardActivity.this, ImageListActivity.class);
+                startActivity(intent);
+            }
+        });
+        // 存入人脸信息
+        bn_get_face.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isSaveFace = true;
+            }
+        });
+        Button switch_camera = (Button) findViewById(R.id.switch_camera);
+        // 切换摄像头（如果有多个）
+        switch_camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 切换摄像头
+                boolean isSwitched = mCameraFaceDetectionView.switchCamera();
+                Toast.makeText(getApplicationContext(), isSwitched ? "摄像头切换成功" : "摄像头切换失败", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+    }
+
+    private void initDetectView() {
         //获取屏幕的宽和高
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int width = wm.getDefaultDisplay().getWidth();
         int height = wm.getDefaultDisplay().getHeight();
-        faceDao = FaceDao.getInstance(this);
-        //loadFaceImg = new LoadFaceImg(this);
-        //开启开门服务
-       /* Intent intent = new Intent(this, DoorLock.class);
-        startService(intent);*/
         // 检测人脸的View
         mCameraFaceDetectionView = (CameraFaceDetectionView) findViewById(R.id.cameraFaceDetectionView);
         //动态设置宽和高
@@ -136,96 +180,11 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
             mCameraFaceDetectionView.loadOpenCV(getApplicationContext());
 
         }
-        // 显示的View
-        tv_sussess = (TextView) findViewById(R.id.tv_sussess);
-        tv_error = (TextView) findViewById(R.id.tv_error);
-        mImageViewFace1 = (ImageView) findViewById(R.id.face1);
-        mImageViewFace2 = (ImageView) findViewById(R.id.face2);
-        mCmpPic = (TextView) findViewById(R.id.text_view);
-        face_time = (TextView) findViewById(R.id.face_time);
-        Button bn_get_face = (Button) findViewById(R.id.bn_get_face);
-        //身份证信息view
-        textViewName = (TextView) findViewById(R.id.textViewName);
-        textViewSex = (TextView) findViewById(R.id.textViewSex);
-        textViewBirthday = (TextView) findViewById(R.id.textViewBirthday);
-        textViewNation = (TextView) findViewById(R.id.textViewNation);
-        textViewAddress = (TextView) findViewById(R.id.textViewAddress);
-        textViewPIDNo = (TextView) findViewById(R.id.textViewPIDNo);
-        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
-        //查看已经录入的人脸信息
-        bt_look = (Button) findViewById(R.id.bt_look);
-        bt_look.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FaceCardActivity.this, ImageListActivity.class);
-                startActivity(intent);
-            }
-        });
-        // 存入人脸信息
-        bn_get_face.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isSaveFace = true;
-            }
-        });
-        Button switch_camera = (Button) findViewById(R.id.switch_camera);
-        // 切换摄像头（如果有多个）
-        switch_camera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 切换摄像头
-                boolean isSwitched = mCameraFaceDetectionView.switchCamera();
-                Toast.makeText(getApplicationContext(), isSwitched ? "摄像头切换成功" : "摄像头切换失败", Toast.LENGTH_SHORT).show();
-            }
-        });
-        // 动态权限检查器
-        mPermissionsManager = new PermissionsManager(this) {
-            @Override
-            public void authorized(int requestCode) {
-                Toast.makeText(getApplicationContext(), "权限通过！", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void noAuthorization(int requestCode, String[] lacksPermissions) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(FaceCardActivity.this);
-                builder.setTitle("提示");
-                builder.setMessage("缺少相机权限！");
-                builder.setPositiveButton("设置权限", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        PermissionsManager.startAppSettings(getApplicationContext());
-                    }
-                });
-                builder.create().show();
-            }
-
-            @Override
-            public void ignore() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(FaceCardActivity.this);
-                builder.setTitle("提示");
-                builder.setMessage("Android 6.0 以下系统不做权限的动态检查\n如果运行异常\n请优先检查是否安装了 OpenCV Manager\n并且打开了 CAMERA 权限");
-                builder.setPositiveButton("确认", null);
-                builder.setNeutralButton("设置权限", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        PermissionsManager.startAppSettings(getApplicationContext());
-                    }
-                });
-                //builder.create().show();
-            }
-        };
     }
-
-
-    private IDCard idCard;
 
     @Override
     protected void onResume() {
         super.onResume();
-        // 要校验的权限
-        String[] PERMISSIONS = new String[]{Manifest.permission.CAMERA};
-        // 检查权限
-        mPermissionsManager.checkPermissions(0, PERMISSIONS);
         //打开阅读器
         if (mIdCardUtil == null) {
             mIdCardUtil = new IdCardUtil(this, this);
@@ -233,7 +192,6 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
         mIdCardUtil.openIdCard();
         mIdCardUtil.readIdCard();
     }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -247,6 +205,7 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
         }
         return super.onKeyDown(keyCode, event);
     }
+
 
     /**
      * 设置应用权限
@@ -270,13 +229,10 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
             isSaveFace = false;
             //和文件里面已经存入的人脸做对比，有相同的则不存储，
             //查询数据库
-/*
-            ArrayList<UserInfo> userInfoArrayList = new ArrayList<UserInfo>();
-            userInfoArrayList = faceDao.getUserinfo();
+            ArrayList<UserInfo> userInfoArrayList = faceDao.getUserinfo();
             if (userInfoArrayList != null && userInfoArrayList.size() > 0) {
                 for (int i = 0; i < userInfoArrayList.size(); i++) {
-                    UserInfo users = new UserInfo();
-                    users = userInfoArrayList.get(i);
+                    UserInfo users = userInfoArrayList.get(i);
                     Bitmap bitmap = BitmapFactory.decodeFile(users.getFacepath());
                     if (bitmap != null) {
                         Mat matFinal = FaceUtil.grayChange(mat, rect);
@@ -303,7 +259,6 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
                 faceDao.insertUserinfo(null, getApplicationContext().getFilesDir().getPath() + time + ".jpg");
                 isShow = true;
             }
-*/
         }
         if (isGettingFace) {
             mBitmapFace1 = null;
@@ -482,4 +437,6 @@ public class FaceCardActivity extends AppCompatActivity implements OnFaceDetecto
             });
         }
     }
+
+
 }

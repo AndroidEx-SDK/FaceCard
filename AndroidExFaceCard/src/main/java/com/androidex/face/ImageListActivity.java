@@ -28,7 +28,7 @@ public class ImageListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_face);
+        setContentView(R.layout.activity_imagelist);
         faceDao = FaceDao.getInstance(this);
         gv_face = (GridView) findViewById(R.id.gv_face);
         //获取数据源
