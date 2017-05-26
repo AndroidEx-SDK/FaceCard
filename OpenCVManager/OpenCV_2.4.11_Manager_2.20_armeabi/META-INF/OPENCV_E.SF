@@ -1,0 +1,68 @@
+Signature-Version: 1.0
+SHA1-Digest-Manifest-Main-Attributes: 7pXRYBVJ/INxSbjh7H2+XYuIwf0=
+Created-By: 1.6.0_34 (Sun Microsystems Inc.)
+SHA1-Digest-Manifest: +7ex88FvCv0PeHmyAOxgkJ5Pj/0=
+
+Name: lib/armeabi/libOpenCVEngine.so
+SHA1-Digest: KcHm6sZtsaKtFYeeb/q4BfGYjhU=
+
+Name: lib/armeabi/libnative_camera_r2.2.0.so
+SHA1-Digest: LfW3iKkj/Awq+qTkh6tnwo1PFa4=
+
+Name: res/layout/info.xml
+SHA1-Digest: jY8LA+Zm476+bf9Ey2wv4lomK14=
+
+Name: lib/armeabi/libopencv_java.so
+SHA1-Digest: R16H+hlHknVvmCpRWijI3C4cPBI=
+
+Name: lib/armeabi/libOpenCVEngine_jni.so
+SHA1-Digest: G3FJf/dRLzJHJ30ZurMiJjVdwkI=
+
+Name: lib/armeabi/libopencv_info.so
+SHA1-Digest: tXa3/H/WDT8rWbJWi6pABilHebw=
+
+Name: resources.arsc
+SHA1-Digest: +88xvQ+y3TIso+nZDWW9wYsji6M=
+
+Name: classes.dex
+SHA1-Digest: b6tcWNPrGgcf+k3RbyPxKtXss3w=
+
+Name: res/layout-small/info.xml
+SHA1-Digest: jePWmPU6H68wjnMar+h06Hur4xk=
+
+Name: lib/armeabi/libnative_camera_r4.0.0.so
+SHA1-Digest: txtt45ZJihToSUK0ZNs+LUdV26g=
+
+Name: res/layout/main.xml
+SHA1-Digest: 9Pipj0PY78lR0TptybEDCkVLclo=
+
+Name: lib/armeabi/libnative_camera_r4.2.0.so
+SHA1-Digest: aec43GLDni92k8coNhxZxMPo24Y=
+
+Name: AndroidManifest.xml
+SHA1-Digest: QWoz3kzCpP4dOb5xZOKAISQAIF8=
+
+Name: res/drawable/icon.png
+SHA1-Digest: QIAnpyP8+AXAxP5L8GcwqUeHGwY=
+
+Name: res/layout-small/main.xml
+SHA1-Digest: RmaMVgL0Z2Lu7dV0nT7NhY48cxg=
+
+Name: lib/armeabi/libnative_camera_r3.0.1.so
+SHA1-Digest: /Pcwx3KiigdaD3hY+ok05J6Usdk=
+
+Name: lib/armeabi/libnative_camera_r4.0.3.so
+SHA1-Digest: LKwSZeUW6+Cki/SOdfA6g/4dKwo=
+
+Name: lib/armeabi/libnative_camera_r4.1.1.so
+SHA1-Digest: SgnLzTVFnSq91lsmJaLCY1wmoO4=
+
+Name: lib/armeabi/libnative_camera_r4.4.0.so
+SHA1-Digest: f8FUw5DLq1EIpNBcKW76b5dQx8A=
+
+Name: lib/armeabi/libnative_camera_r2.3.3.so
+SHA1-Digest: rwPuLnv6a8fshiaygiDdl0tW4D0=
+
+Name: lib/armeabi/libnative_camera_r4.3.0.so
+SHA1-Digest: 3sQhfL6zUZkA8i9peApB7/moc3I=
+
