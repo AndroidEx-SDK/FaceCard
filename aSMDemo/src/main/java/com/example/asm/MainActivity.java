@@ -134,15 +134,13 @@ public class MainActivity extends Activity implements PreviewCallback {
 			if (v == iv_image_view_asm && doubleClick) {
 				// start AsmViewActivity
 				if (faceFound == false) {
-					Toast.makeText(MainActivity.this, "no available ASM image",
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(MainActivity.this, "no available ASM image", Toast.LENGTH_SHORT).show();
 				} else {
 					// store image on device
 					saveBitmap(asmBitmap);
 					Intent intent = new Intent();
 					intent.setAction(Intent.ACTION_VIEW);
-					intent.setDataAndType(Uri.parse("file://"
-							+ Params.ASMActivity.LOCAL_FILE), "image/*");
+					intent.setDataAndType(Uri.parse("file://" + Params.ASMActivity.LOCAL_FILE), "image/*");
 					startActivity(intent);
 				}
 			}

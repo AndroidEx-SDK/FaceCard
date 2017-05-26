@@ -61,16 +61,17 @@ public final class FaceUtil {
      * @return 保存是否成功
      */
     public static boolean saveImage(Context context, Mat image, Rect rect, String fileName) {
-        Mat mat = grayChange(image,rect);
+        Mat mat = grayChange(image, rect);
         return Highgui.imwrite(getFilePath(context, fileName), mat);
     }
 
     /**
      * 将检测的人脸置灰且变成固定大小
+     *
      * @param image
      * @param rect
      */
-    public static Mat grayChange(Mat image,Rect rect){
+    public static Mat grayChange(Mat image, Rect rect) {
         // 原图置灰
         Mat grayMat = new Mat();
         Imgproc.cvtColor(image, grayMat, Imgproc.COLOR_BGR2GRAY);
@@ -84,10 +85,11 @@ public final class FaceUtil {
 
     /**
      * 将图片置灰
+     *
      * @param bitmap
      * @return
      */
-    public static  Bitmap grey(Bitmap bitmap) {
+    public static Bitmap grey(Bitmap bitmap) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
@@ -107,10 +109,11 @@ public final class FaceUtil {
 
     /**
      * 得到固定大小的bitmap
+     *
      * @param bitmap
      * @return
      */
-    public static Bitmap getSizeBmp(Bitmap bitmap){
+    public static Bitmap getSizeBmp(Bitmap bitmap) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         // 设置想要的大小
@@ -125,33 +128,35 @@ public final class FaceUtil {
         return mbitmap;
     }
 
+    /*************** 第一种算法***************************/
    /* *
      *  提取图片特征
      * @return
      */
-    public static Mat extractORB(Mat test_mat){
+    public static Mat extractORB(Mat test_mat) {
         Mat desc = new Mat();
         FeatureDetector fd = FeatureDetector.create(FeatureDetector.ORB);
-        MatOfKeyPoint mkp =new MatOfKeyPoint();
+        MatOfKeyPoint mkp = new MatOfKeyPoint();
         //Log.d(TAG, "extractSIFT: +++++++++----------");
         fd.detect(test_mat, mkp);//报错
         //Log.d(TAG, "extractSIFT: +++++++++");
         //Log.d(TAG, "extractORB: 图像特征点个数"+mkp.size());
         DescriptorExtractor de = DescriptorExtractor.create(DescriptorExtractor.ORB);
-        de.compute(test_mat,mkp,desc );//提取特征
+        de.compute(test_mat, mkp, desc);//提取特征
         //Log.d(TAG, "extractORB: 特征描述矩阵大小"+desc.size());
         //Log.d(TAG, "extractSIFT: "+desc.cols());
         //Log.d(TAG, "extractSIFT: "+desc.rows());
         return desc;
     }
+
     /**
      * 匹配特征
      */
-    public static double match(Mat face1,Mat face2){
+    public static double match(Mat face1, Mat face2) {
         double max = 0;
         DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
         MatOfDMatch matches = new MatOfDMatch();
-        descriptorMatcher.match(face1,face2,matches);
+        descriptorMatcher.match(face1, face2, matches);
       /*  double max_dist = 0;
         double min_dist = 100;
         DMatch [] dma = matches.toArray();
@@ -168,25 +173,28 @@ public final class FaceUtil {
             }
         }*/
         //Log.d(TAG, "match: 个数"+matches.size());
-        DMatch [] dma = matches.toArray();
+        DMatch[] dma = matches.toArray();
         for (int i = 0; i < dma.length; i++) {
             double list = dma[i].distance;
-            if (list<100){
+            if (list < 100) {
                 max++;
             }
             //Log.d(TAG, "match: 距离="+list);
         }
         //Log.d(TAG, "match: max="+max);
         //Log.d(TAG, "match: 相似度"+max/dma.length*100);
-        return max/dma.length*100;
+        return max / dma.length * 100;
     }
+
+
 
     /**
      * 将bitmap保存至固定路径下
+     *
      * @param bitmap
      */
-    public static void saveImage(Context context,Bitmap bitmap,String fileName){
-        String path = getFilePath(context,fileName);
+    public static void saveImage(Context context, Bitmap bitmap, String fileName) {
+        String path = getFilePath(context, fileName);
         File file = new File(path);
         FileOutputStream fOut = null;
         try {
@@ -293,15 +301,16 @@ public final class FaceUtil {
 
     /**
      * 比较两个矩阵的相似度
+     *
      * @param srcMat
      * @param desMat
      */
-    public static double comPareHist(Mat srcMat,Mat desMat){
+    public static double comPareHist(Mat srcMat, Mat desMat) {
 
         srcMat.convertTo(srcMat, CvType.CV_32F);
         desMat.convertTo(desMat, CvType.CV_32F);
         double target = Imgproc.compareHist(srcMat, desMat, Imgproc.CV_COMP_CORREL);
-        return target*100;
+        return target * 100;
 
     }
 
@@ -314,7 +323,7 @@ public final class FaceUtil {
     private static String getFilePath(Context context, String fileName) {
         if (TextUtils.isEmpty(fileName)) {
         }
-        Log.d(TAG, "getFilePath: "+context.getApplicationContext().getFilesDir().getPath() + fileName + ".jpg");
+        Log.d(TAG, "getFilePath: " + context.getApplicationContext().getFilesDir().getPath() + fileName + ".jpg");
         // 内存路径
         return context.getApplicationContext().getFilesDir().getPath() + fileName + ".jpg";
         // 内存卡路径 需要SD卡读取权限

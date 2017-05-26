@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
         if (isGettingFace) {
             mBitmapFace1 = null;
             cmpTemp = 0.0;
-            Mat m = FaceUtil.extractORB(mat);
+            Mat m = FaceUtil.extractORB(mat);//拿着检测到的人脸去提取图片特征
             if (idCard != null && matFace1 != null) {//读取到身份证照片才做对比
                 startTime = System.currentTimeMillis();
                 cmp = FaceUtil.match(m, matFace1);//计算相似度
@@ -359,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                         mImageViewFace1.setImageResource(R.mipmap.ic_contact_picture);
                     } else {
                         face_time.setText("识别时间:" + (afterTime - startTime) + "ms");
-
 
                         if (lcmp > 50) {
                             FaceUtil.saveImage(MainActivity.this, mat, rect, FACE1);
@@ -425,8 +424,10 @@ public class MainActivity extends AppCompatActivity implements OnFaceDetectorLis
                     for (Rect rect : rects) {
                         Core.rectangle(mat2, new Point(rect.x, rect.y), new Point(rect.x
                                 + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
-                        matFace1 = FaceUtil.grayChange(mat2, rect);
-                        matFace1 = FaceUtil.extractORB(matFace1);
+                        matFace1 = FaceUtil.grayChange(mat2, rect);//灰度处理
+                        matFace1 = FaceUtil.extractORB(matFace1);//提取图片特征
+
+
                     }
                 } else {
                     //Log.e(TAG, "onCreate: 级联容器加载失败");
