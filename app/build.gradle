@@ -5,7 +5,6 @@ android {
     buildToolsVersion '25.0.2'
 
     defaultConfig {
-        applicationId "kong.qingwei.kqwfacedetectiondemo"
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
@@ -33,7 +32,7 @@ android {
     /** 导入so文件 */
     task nativeLibsToJar(type: Zip, description: "create a jar archive of the native libs") {
         destinationDir file("$projectDir/libs")
-        baseName "jniaexlib"
+        baseName "jniaexFaceLib"
         extension "jar"
         from fileTree(dir: "src/main/jniLibs", include: "**/*.so")
         into "lib"
